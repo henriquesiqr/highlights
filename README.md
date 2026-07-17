@@ -3,7 +3,7 @@ Melhores momentos pingzada
 
 ## Roadmap
 
-- [ ] Capturar vídeo do iPhone
+- [X] Capturar vídeo do iPhone
 - [ ] Gravar partidas
 - [ ] Marcar highlights
 - [ ] Exportar highlights

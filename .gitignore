@@ -1,2 +1,25 @@
+# Ambiente virtual
 .venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# VSCode
+.vscode/
+
+# MediaMTX
 mediamtx*/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de vídeo
+recordings/*
+highlights/*
+
+# Mantém as pastas no Git
+!recordings/.gitkeep
+!highlights/.gitkeep
