@@ -1,4 +1,4 @@
-from config import camera_source
+from core.config import camera_source
 import cv2
 
 class Camera:

@@ -1,6 +1,5 @@
 import cv2
-from camera import Camera
-
+from core.camera import Camera
 
 camera = Camera()
 
