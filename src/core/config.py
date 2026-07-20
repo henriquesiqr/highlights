@@ -1,4 +1,4 @@
-camera_source = 2
+camera_source = 1
 
 frame_width = 640
 frame_height = 480
