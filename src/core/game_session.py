@@ -3,6 +3,7 @@ from pathlib import Path
 from core.camera import Camera
 from core.game_recorder import GameRecorder
 from core.highlight_manager import HighlightManager
+from core.video_editor import VideoEditor
 from core.config import (
     frame_width,
     frame_height,
@@ -18,12 +19,12 @@ class GameSession:
 
     def __init__(self):
 
-        output_path = Path(recordings_dir) / temp_video_name
+        self.output_path = Path(recordings_dir) / temp_video_name
 
         self.camera = Camera()
 
         self.recorder = GameRecorder(
-            output_path=str(output_path),
+            output_path=str(self.output_path),
             width=frame_width,
             height=frame_height,
             fps=fps,
@@ -31,6 +32,8 @@ class GameSession:
         )
 
         self.highlight_manager = HighlightManager()
+
+        self.video_editor = VideoEditor()
 
     def run(self):
 
@@ -55,6 +58,12 @@ class GameSession:
                 break
 
         self.recorder.stop()
+        for highlight in self.highlight_manager.highlights:
+            self.video_editor.export(
+                input_video=str(self.output_path),
+                output_dir="highlights",
+                highlight=highlight,
+            )
         self.camera.release()
         cv2.destroyAllWindows()
 

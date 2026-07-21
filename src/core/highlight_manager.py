@@ -18,6 +18,7 @@ class HighlightManager:
         start = max(0, end - buffer_seconds)
 
         highlight = Highlight(
+            id=len(self.highlights) + 1,
             start=start,
             end=end,
         )
