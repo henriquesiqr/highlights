@@ -18,11 +18,15 @@ class VideoEditor:
         )
  
         clip = VideoFileClip(input_video)
- 
-        highlight_clip = clip.subclipped(
-            highlight.start,
-            highlight.end,
-        )
+        
+        start = max(0, highlight.start)
+        end = min(highlight.end, clip.duration)
+        
+        if start >= end:
+            print(f"Highlight {highlight.id} ignorado.")
+            clip.close()
+            return
+        highlight_clip = clip.subclipped(start, end)
  
         highlight_clip.write_videofile(
             str(output_path),

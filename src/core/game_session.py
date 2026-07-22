@@ -59,11 +59,18 @@ class GameSession:
 
         self.recorder.stop()
         for highlight in self.highlight_manager.highlights:
-            self.video_editor.export(
-                input_video=str(self.output_path),
-                output_dir="highlights",
-                highlight=highlight,
-            )
+            try:
+                print(f"Exportando highlight {highlight.id}...")
+                self.video_editor.export(
+                    input_video=str(self.output_path),
+                    output_dir="highlights",
+                    highlight=highlight,
+                )
+            except Exception as e:
+                print(
+                    f"Erro ao exportar o highlight "
+                    f"{highlight.id}: {e}"
+                )
         self.camera.release()
         cv2.destroyAllWindows()
 
