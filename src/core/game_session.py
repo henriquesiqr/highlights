@@ -81,8 +81,25 @@ class GameSession:
             
     def start_game(self):
 
+        self.session_manager = SessionManager()
+
+        self.output_path = (
+            self.session_manager.session_folder /
+            temp_video_name
+        )
+
+        self.recorder = GameRecorder(
+            output_path=str(self.output_path),
+            width=frame_width,
+            height=frame_height,
+            fps=fps,
+            codec=video_codec,
+        )
+
+        self.highlight_manager = HighlightManager()
+
         self.game_running = True
-        
+
         self.recorder.start()
 
         print("\nPartida iniciada!")
