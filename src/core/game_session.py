@@ -37,7 +37,7 @@ class GameSession:
 
     def run(self):
 
-        self.recorder.start()
+        self.start_game()
 
         while True:
 
@@ -57,28 +57,57 @@ class GameSession:
             elif key == 27:
                 break
 
-        self.recorder.stop()
+        self.end_game()
+    
+    def start_game(self):
+
+        self.recorder.start()
+
+        print("Gravação iniciada.")
+        
+    def export_highlights(self):
+
+        print("\nExportando highlights...")
+
         for highlight in self.highlight_manager.highlights:
+
             try:
+
                 print(f"Exportando highlight {highlight.id}...")
+
                 self.video_editor.export(
                     input_video=str(self.output_path),
                     output_dir="highlights",
                     highlight=highlight,
                 )
+
             except Exception as e:
+
                 print(
-                    f"Erro ao exportar o highlight "
+                    f"Erro ao exportar highlight "
                     f"{highlight.id}: {e}"
                 )
+    def end_game(self):
+
+        self.recorder.stop()
+
+        self.export_highlights()
+
         self.camera.release()
+
         cv2.destroyAllWindows()
 
         print("\nHighlights registrados:")
-        for i, highlight in enumerate(self.highlight_manager.highlights, start=1):
+
+        for i, highlight in enumerate(
+            self.highlight_manager.highlights,
+            start=1,
+        ):
+
             print(
                 f"{i:02d}. "
                 f"{highlight.start:.2f}s → "
                 f"{highlight.end:.2f}s"
             )
+            
         print("Gravação finalizada.")
