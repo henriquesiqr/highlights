@@ -50,31 +50,35 @@ class GameSession:
         print("=" * 40)
 
         while True:
-            if not self.game_running:
-                key = cv2.waitKey(1) & 0xFF
-                if key == ord("n"):
-                    self.start_game()
-                elif key == 27:
-                    self.shutdown()
-                    break
-                continue
-
             ret, frame = self.camera.read()
-
             if not ret:
                 print("Erro ao capturar frame.")
                 break
 
-            self.recorder.write(frame)
-
             cv2.imshow(window_name, frame)
-
+            
+            if self.game_running:
+                self.recorder.write(frame)
+            
             key = cv2.waitKey(1) & 0xFF
-            if key == ord("h"):
-                self.highlight_manager.add_highlight()
+            
+            if key == ord("n"):
+                if not self.game_running:
+                    self.start_game()
+            
+            elif key == ord("h"):
+                if self.game_running:
+                    self.highlight_manager.add_highlight()
+            
             elif key == ord("f"):
-                self.end_game()
-    
+                if self.game_running:
+                    self.end_game()
+                    
+            elif key == 27:
+                self.shutdown()
+                break
+            
+            
     def start_game(self):
 
         self.game_running = True
