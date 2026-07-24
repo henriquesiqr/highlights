@@ -37,12 +37,27 @@ class GameSession:
         self.video_editor = VideoEditor()
         
         self.session_manager = SessionManager()
+        
+        self.game_running = False
 
     def run(self):
 
-        self.start_game()
+        print("=" * 40)
+        print("PingCam")
+        print()
+        print("[N] Nova partida")
+        print("[ESC] Encerrar")
+        print("=" * 40)
 
         while True:
+            if not self.game_running:
+                key = cv2.waitKey(1) & 0xFF
+                if key == ord("n"):
+                    self.start_game()
+                elif key == 27:
+                    self.shutdown()
+                    break
+                continue
 
             ret, frame = self.camera.read()
 
@@ -57,16 +72,16 @@ class GameSession:
             key = cv2.waitKey(1) & 0xFF
             if key == ord("h"):
                 self.highlight_manager.add_highlight()
-            elif key == 27:
-                break
-
-        self.end_game()
+            elif key == ord("f"):
+                self.end_game()
     
     def start_game(self):
 
+        self.game_running = True
+        
         self.recorder.start()
 
-        print("Gravação iniciada.")
+        print("\nPartida iniciada!")
         
     def export_highlights(self):
 
@@ -96,6 +111,13 @@ class GameSession:
 
         return success
 
+    def shutdown(self):
+
+        self.camera.release()
+        cv2.destroyAllWindows()
+
+        print("Pingcam encerrada.")
+    
     def end_game(self):
 
         self.recorder.stop()
@@ -107,10 +129,6 @@ class GameSession:
             print("Vídeo temporário removido.")
         elif not success:
             print("Vídeo temporário mantido para recuperação.")
-            
-        self.camera.release()
-
-        cv2.destroyAllWindows()
 
         print("\nHighlights registrados:")
 
@@ -124,6 +142,8 @@ class GameSession:
                 f"{highlight.start:.2f}s → "
                 f"{highlight.end:.2f}s"
             )
+        
+        self.game_running = False
             
         print("\n=====================================")
         print("Sessão finalizada!")

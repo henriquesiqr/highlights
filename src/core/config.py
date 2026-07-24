@@ -6,4 +6,4 @@ buffer_seconds = 20
 video_codec = "mp4v"
 recordings_dir = "recordings"
 temp_video_name = "game_temp.mp4"
-window_name = "pingreplay"
+window_name = "pingcam"
