@@ -72,12 +72,13 @@ class GameSession:
 
         print("\nExportando highlights...")
 
+        success = True
+
         for highlight in self.highlight_manager.highlights:
 
             try:
-
                 print(f"Exportando highlight {highlight.id}...")
-
+                
                 self.video_editor.export(
                     input_video=str(self.output_path),
                     output_dir=str(self.session_manager.session_folder),
@@ -86,16 +87,27 @@ class GameSession:
 
             except Exception as e:
 
+                success = False
+
                 print(
                     f"Erro ao exportar highlight "
                     f"{highlight.id}: {e}"
                 )
+
+        return success
+
     def end_game(self):
 
         self.recorder.stop()
 
-        self.export_highlights()
-
+        success = self.export_highlights()
+        
+        if success and self.output_path.exists():
+            self.output_path.unlink()
+            print("Vídeo temporário removido.")
+        elif not success:
+            print("Vídeo temporário mantido para recuperação.")
+            
         self.camera.release()
 
         cv2.destroyAllWindows()
@@ -113,4 +125,11 @@ class GameSession:
                 f"{highlight.end:.2f}s"
             )
             
-        print("Gravação finalizada.")
+        print("\n=====================================")
+        print("Sessão finalizada!")
+        print()
+        print(f"{len(self.highlight_manager.highlights)} highlights exportados.")
+        print()
+        print("Pasta da sessão:")
+        print(self.session_manager.session_folder)
+        print("=====================================")
