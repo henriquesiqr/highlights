@@ -4,6 +4,7 @@ from core.camera import Camera
 from core.game_recorder import GameRecorder
 from core.highlight_manager import HighlightManager
 from core.video_editor import VideoEditor
+from core.session_manager import SessionManager
 from core.config import (
     frame_width,
     frame_height,
@@ -34,6 +35,8 @@ class GameSession:
         self.highlight_manager = HighlightManager()
 
         self.video_editor = VideoEditor()
+        
+        self.session_manager = SessionManager()
 
     def run(self):
 
@@ -77,7 +80,7 @@ class GameSession:
 
                 self.video_editor.export(
                     input_video=str(self.output_path),
-                    output_dir="highlights",
+                    output_dir=str(self.session_manager.session_folder),
                     highlight=highlight,
                 )
 
