@@ -1,10 +1,12 @@
 import cv2
 from pathlib import Path
+from core.actions import Action
 from core.camera import Camera
 from core.game_recorder import GameRecorder
 from core.highlight_manager import HighlightManager
 from core.video_editor import VideoEditor
 from core.session_manager import SessionManager
+from core.input_controller import InputController
 from core.config import (
     frame_width,
     frame_height,
@@ -23,6 +25,8 @@ class GameSession:
         self.output_path = Path(recordings_dir) / temp_video_name
 
         self.camera = Camera()
+
+        self.input_controller = InputController()
 
         self.recorder = GameRecorder(
             output_path=str(self.output_path),
@@ -49,36 +53,42 @@ class GameSession:
         print("[ESC] Encerrar")
         print("=" * 40)
 
+
         while True:
+            action = self.input_controller.get_action()
+
+            if not self.game_running:
+                if action == Action.START_GAME:
+                    self.start_game()
+
+                elif action == Action.EXIT:
+                    self.shutdown()
+                    break
+
+                continue
+
+            # A partir daqui existe uma partida em andamento
             ret, frame = self.camera.read()
+
             if not ret:
                 print("Erro ao capturar frame.")
                 break
 
             cv2.imshow(window_name, frame)
-            
-            if self.game_running:
-                self.recorder.write(frame)
-            
-            key = cv2.waitKey(1) & 0xFF
-            
-            if key == ord("n"):
-                if not self.game_running:
-                    self.start_game()
-            
-            elif key == ord("h"):
-                if self.game_running:
-                    self.highlight_manager.add_highlight()
-            
-            elif key == ord("f"):
-                if self.game_running:
-                    self.end_game()
-                    
-            elif key == 27:
+
+            self.recorder.write(frame)
+
+            if action == Action.HIGHLIGHT:
+                self.highlight_manager.add_highlight()
+
+            elif action == Action.END_GAME:
+                self.end_game()
+
+            elif action == Action.EXIT:
                 self.shutdown()
                 break
-            
-            
+
+
     def start_game(self):
 
         self.session_manager = SessionManager()
@@ -134,6 +144,7 @@ class GameSession:
 
     def shutdown(self):
 
+        self.input_controller.close()
         self.camera.release()
         cv2.destroyAllWindows()
 
