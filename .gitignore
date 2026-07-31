@@ -23,3 +23,9 @@ highlights/*
 # Mantém as pastas no Git
 !recordings/.gitkeep
 !highlights/.gitkeep
+
+recordings/**
+!recordings/.gitkeep
+
+highlights/**
+!highlights/.gitkeep
