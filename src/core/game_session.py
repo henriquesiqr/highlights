@@ -25,13 +25,16 @@ class GameSession:
         self.output_path = Path(recordings_dir) / temp_video_name
 
         self.camera = Camera()
+        width = int(self.camera.capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(self.camera.capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        print(f"Câmera: {width}x{height}")
 
         self.input_controller = InputController()
 
         self.recorder = GameRecorder(
             output_path=str(self.output_path),
-            width=frame_width,
-            height=frame_height,
+            width=width,
+            height=height,
             fps=fps,
             codec=video_codec,
         )
