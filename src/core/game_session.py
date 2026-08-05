@@ -8,9 +8,6 @@ from core.video_editor import VideoEditor
 from core.session_manager import SessionManager
 from core.input_controller import InputController
 from core.config import (
-    frame_width,
-    frame_height,
-    fps,
     video_codec,
     recordings_dir,
     temp_video_name,
@@ -25,19 +22,12 @@ class GameSession:
         self.output_path = Path(recordings_dir) / temp_video_name
 
         self.camera = Camera()
-        width = int(self.camera.capture.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(self.camera.capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        print(f"Câmera: {width}x{height}")
 
         self.input_controller = InputController()
 
-        self.recorder = GameRecorder(
-            output_path=str(self.output_path),
-            width=width,
-            height=height,
-            fps=fps,
-            codec=video_codec,
-        )
+        self._read_camera_properties()
+
+        self.recorder = none
 
         self.highlight_manager = HighlightManager()
 
@@ -46,6 +36,26 @@ class GameSession:
         self.session_manager = SessionManager()
         
         self.game_running = False
+
+    def _read_camera_properties(self):
+ 
+        self.frame_width = int(
+            self.camera.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        )
+    
+        self.frame_height = int(
+            self.camera.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        )
+    
+        self.camera_fps = self.camera.cap.get(
+            cv2.CAP_PROP_FPS
+        )
+    
+        print(
+            f"Câmera: "
+            f"{self.frame_width}x{self.frame_height} "
+            f"@ {self.camera_fps:.2f} FPS"
+        )
 
     def run(self):
 
@@ -101,11 +111,13 @@ class GameSession:
             temp_video_name
         )
 
+        self._read_camera_properties()
+
         self.recorder = GameRecorder(
             output_path=str(self.output_path),
-            width=frame_width,
-            height=frame_height,
-            fps=fps,
+            width=self.frame_width,
+            height=self.frame_height,
+            fps=round(self.camera_fps),
             codec=video_codec,
         )
 

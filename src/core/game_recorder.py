@@ -22,17 +22,25 @@ class GameRecorder:
         self.is_recording = False
 
     def start(self):
-
+ 
         fourcc = cv2.VideoWriter_fourcc(*self.codec)
-
+ 
+        print(
+            f"Iniciando gravação: "
+            f"{self.width}x{self.height} @ {self.fps} FPS "
+            f"({self.codec})"
+        )
+ 
         self.writer = cv2.VideoWriter(
             self.output_path,
             fourcc,
             self.fps,
             (self.width, self.height),
         )
-
-        self.is_recording = True
+ 
+        print(f"Writer aberto? {self.writer.isOpened()}")
+ 
+        self.is_recording = self.writer.isOpened()
 
     def write(self, frame):
 
