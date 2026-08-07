@@ -27,7 +27,7 @@ class GameSession:
 
         self._read_camera_properties()
 
-        self.recorder = none
+        self.recorder = None
 
         self.highlight_manager = HighlightManager()
 
