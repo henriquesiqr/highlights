@@ -40,8 +40,21 @@ class FFmpegRecorder:
             "-i",
             "video=DroidCam Video",
 
+            # Segmentação
+            "-f",
+            "segment",
+
+            "-segment_time",
+            "5",
+
+            "-reset_timestamps",
+            "1",
+
             "-c:v",
             "h264_qsv",
+
+            "-global_quality",
+            "20",
 
             "-pix_fmt",
             "nv12",
@@ -49,17 +62,17 @@ class FFmpegRecorder:
             "-movflags",
             "+faststart",
 
-            self.output_path,
+            str(self.output_path / "segment_%03d.mp4"),
         ]
 
         print("Comando FFmpeg:")
         print(" ".join(map(str, command)))
 
+        self.output_path.mkdir(parents=True, exist_ok=True)
+
         self.process = subprocess.Popen(
             command,
             stdin=subprocess.PIPE,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
         )
 
     def stop(self):

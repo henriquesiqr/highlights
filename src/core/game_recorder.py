@@ -1,4 +1,5 @@
-import cv2
+from pathlib import Path
+from .ffmpeg_recorder import FFmpegRecorder
 
 
 class GameRecorder:
@@ -12,44 +13,37 @@ class GameRecorder:
         codec: str,
     ):
 
-        self.output_path = output_path
+        self.output_path = Path(output_path)
+
         self.width = width
         self.height = height
         self.fps = fps
         self.codec = codec
 
-        self.writer = None
+        self.recorder = FFmpegRecorder(self.output_path)
+
         self.is_recording = False
 
     def start(self):
- 
-        fourcc = cv2.VideoWriter_fourcc(*self.codec)
- 
+
         print(
             f"Iniciando gravação: "
-            f"{self.width}x{self.height} @ {self.fps} FPS "
-            f"({self.codec})"
+            f"{self.width}x{self.height} @ {self.fps} FPS"
         )
- 
-        self.writer = cv2.VideoWriter(
-            self.output_path,
-            fourcc,
-            self.fps,
-            (self.width, self.height),
-        )
- 
-        print(f"Writer aberto? {self.writer.isOpened()}")
- 
-        self.is_recording = self.writer.isOpened()
+
+        self.recorder.start()
+
+        self.is_recording = True
 
     def write(self, frame):
 
-        if self.is_recording:
-            self.writer.write(frame)
+        # O FFmpeg captura diretamente da DroidCam.
+        pass
 
     def stop(self):
 
-        if self.writer is not None:
-            self.writer.release()
+        if self.is_recording:
 
-        self.is_recording = False
+            self.recorder.stop()
+
+            self.is_recording = False

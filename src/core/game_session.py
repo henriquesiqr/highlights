@@ -108,7 +108,7 @@ class GameSession:
 
         self.output_path = (
             self.session_manager.session_folder /
-            temp_video_name
+            "game_temp"
         )
 
         self._read_camera_properties()
