@@ -1,23 +1,18 @@
-import time
 from pathlib import Path
-import sys
-
-sys.path.append(
-    str(Path(__file__).resolve().parents[1] / "src")
-)
-
-from core.ffmpeg_recorder import FFmpegRecorder
+import time
+from src.core.ffmpeg_recorder import FFmpegRecorder
 
 
-recorder = FFmpegRecorder("teste.mp4")
+output_path = Path("teste_ffmpeg.mp4")
+
+recorder = FFmpegRecorder(output_path)
 
 print("Iniciando...")
-
 recorder.start()
 
-time.sleep(10)
+print("Gravando por 10 segundos...")
 
-print("Parando...")
+time.sleep(10)
 
 recorder.stop()
 
