@@ -1,91 +1,56 @@
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
-
-FFMPEG_PATH = Path(
-    r"C:\Users\HENRI\Downloads"
-    r"\ffmpeg-9.0-essentials_build"
-    r"\ffmpeg-9.0-essentials_build"
-    r"\bin"
-    r"\ffmpeg.exe"
+from core.config import (
+    ffmpeg_path,
+    camera_device_name,
+    capture_width,
+    capture_height,
+    capture_fps,
+    segment_time,
+    video_quality,
 )
 
 
 class FFmpegRecorder:
 
-    def __init__(self, output_path):
-
-        self.output_path = output_path
+    def __init__(self, segments_dir: Path):
+        self.segments_dir = Path(segments_dir)
         self.process = None
 
     def start(self):
 
+        self.segments_dir.mkdir(parents=True, exist_ok=True)
+
         command = [
-            str(FFMPEG_PATH),
-
+            str(ffmpeg_path),
             "-y",
-
-            "-f",
-            "dshow",
-
-            "-video_size",
-            "1920x1080",
-
-            "-framerate",
-            "30",
-
-            "-rtbufsize",
-            "512M",
-
-            "-i",
-            "video=DroidCam Video",
-
-            # Segmentação
-            "-f",
-            "segment",
-
-            "-segment_time",
-            "5",
-
-            "-reset_timestamps",
-            "1",
-
-            "-c:v",
-            "h264_qsv",
-
-            "-global_quality",
-            "20",
-
-            "-pix_fmt",
-            "nv12",
-
-            "-movflags",
-            "+faststart",
-
-            str(self.output_path / "segment_%03d.mp4"),
+            "-f", "dshow",
+            "-video_size", f"{capture_width}x{capture_height}",
+            "-framerate", str(capture_fps),
+            "-rtbufsize", "512M",
+            "-i", f"video={camera_device_name}",
+            "-f", "segment",
+            "-segment_time", str(segment_time),
+            "-reset_timestamps", "1",
+            "-c:v", "h264_qsv",
+            "-global_quality", str(video_quality),
+            "-pix_fmt", "nv12",
+            "-movflags", "+faststart",
+            str(self.segments_dir / "segment_%03d.mp4"),
         ]
 
         print("Comando FFmpeg:")
         print(" ".join(map(str, command)))
 
-        self.output_path.mkdir(parents=True, exist_ok=True)
-
-        self.process = subprocess.Popen(
-            command,
-            stdin=subprocess.PIPE,
-        )
+        self.process = subprocess.Popen(command, stdin=subprocess.PIPE)
 
     def stop(self):
 
         if self.process:
-
             print("Parando gravação...")
-
             self.process.stdin.write(b"q")
             self.process.stdin.flush()
-
             self.process.wait()
-
             print("Gravação finalizada.")
-
             self.process = None

@@ -1,9 +1,28 @@
-camera_source = 1
-buffer_seconds = 20
-video_codec = "mp4v"
+from pathlib import Path
+
+# Câmera / captura
+camera_device_name = "DroidCam Video"
+capture_width = 1920
+capture_height = 1080
+capture_fps = 30
+
+# Gravação
+segment_time = 5       # duração de cada segmento, em segundos
+buffer_seconds = 20    # janela de highlight
+video_quality = 20     # global_quality do h264_qsv (menor = melhor)
+
 recordings_dir = "recordings"
-temp_video_name = "game_temp.mp4"
-window_name = "pingcam"
+segments_folder_name = "segments"
+
+ffmpeg_path = Path(
+    r"C:\Users\HENRI\Downloads"
+    r"\ffmpeg-9.0-essentials_build"
+    r"\ffmpeg-9.0-essentials_build"
+    r"\bin"
+    r"\ffmpeg.exe"
+)
+
+# Teclado
 key_start = "n"
 key_highlight = "h"
 key_end = "f"
