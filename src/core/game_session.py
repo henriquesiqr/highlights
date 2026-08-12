@@ -63,6 +63,20 @@ class GameSession:
 
             time.sleep(0.05)
 
+    def _wait_for_first_segment(self, timeout=10):
+
+        first_segment = self.segments_dir / "segment_000.mp4"
+        started = time.time()
+
+        while not first_segment.exists():
+
+            if time.time() - started > timeout:
+                raise RuntimeError(
+                    "Timeout esperando o ffmpeg iniciar a gravação."
+                )
+
+            time.sleep(0.05)
+
     def start_game(self):
 
         self.session_manager = SessionManager()
@@ -76,7 +90,7 @@ class GameSession:
 
         # dá um respiro pro ffmpeg inicializar o device
         # antes de começar a contar o tempo dos highlights
-        time.sleep(1)
+        self._wait_for_first_segment()
 
         self.highlight_manager = HighlightManager()
         self.game_running = True
