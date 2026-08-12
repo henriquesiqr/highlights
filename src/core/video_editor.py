@@ -1,6 +1,5 @@
 import subprocess
 from pathlib import Path
-
 from core.config import ffmpeg_path, segment_time
 from core.highlight import Highlight
 
@@ -41,7 +40,12 @@ class VideoEditor:
 
         subprocess.run(
             [
-                str(ffmpeg_path), "-y",
+                str(ffmpeg_path),
+                "-y",
+                "-hide_banner",
+                "-loglevel",
+                "warning",
+                "-nostats",
                 "-f", "concat", "-safe", "0",
                 "-i", str(concat_list),
                 "-c", "copy",
@@ -57,7 +61,12 @@ class VideoEditor:
 
         subprocess.run(
             [
-                str(ffmpeg_path), "-y",
+                str(ffmpeg_path), 
+                "-y",
+                "-hide_banner",
+                "-loglevel",
+                "warning",
+                "-nostats",
                 "-ss", f"{offset:.3f}",
                 "-i", str(concat_video),
                 "-t", f"{duration:.3f}",

@@ -25,6 +25,9 @@ class FFmpegRecorder:
         command = [
             str(ffmpeg_path),
             "-y",
+            "-hide_banner",
+            "-loglevel", "warning",
+            "-nostats",
             "-f", "dshow",
             "-video_size", f"{capture_width}x{capture_height}",
             "-framerate", str(capture_fps),
