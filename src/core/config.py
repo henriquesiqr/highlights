@@ -1,6 +1,6 @@
 from pathlib import Path
 
-# Câmera / captura
+# Câmera / captura / fps
 camera_device_name = "DroidCam Video"
 capture_width = 1920
 capture_height = 1080
