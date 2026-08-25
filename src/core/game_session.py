@@ -1,47 +1,29 @@
-import cv2
+import time
 from pathlib import Path
+import shutil
+
 from core.actions import Action
-from core.camera import Camera
 from core.game_recorder import GameRecorder
 from core.highlight_manager import HighlightManager
 from core.video_editor import VideoEditor
 from core.session_manager import SessionManager
 from core.input_controller import InputController
-from core.config import (
-    frame_width,
-    frame_height,
-    fps,
-    video_codec,
-    recordings_dir,
-    temp_video_name,
-    window_name,
-)
+from core.config import segments_folder_name
 
 
 class GameSession:
 
     def __init__(self):
 
-        self.output_path = Path(recordings_dir) / temp_video_name
-
-        self.camera = Camera()
-
         self.input_controller = InputController()
 
-        self.recorder = GameRecorder(
-            output_path=str(self.output_path),
-            width=frame_width,
-            height=frame_height,
-            fps=fps,
-            codec=video_codec,
-        )
+        self.recorder = None
+        self.segments_dir = None
 
         self.highlight_manager = HighlightManager()
-
         self.video_editor = VideoEditor()
-        
         self.session_manager = SessionManager()
-        
+
         self.game_running = False
 
     def run(self):
@@ -53,11 +35,12 @@ class GameSession:
         print("[ESC] Encerrar")
         print("=" * 40)
 
-
         while True:
+
             action = self.input_controller.get_action()
 
             if not self.game_running:
+
                 if action == Action.START_GAME:
                     self.start_game()
 
@@ -65,18 +48,8 @@ class GameSession:
                     self.shutdown()
                     break
 
+                time.sleep(0.05)
                 continue
-
-            # A partir daqui existe uma partida em andamento
-            ret, frame = self.camera.read()
-
-            if not ret:
-                print("Erro ao capturar frame.")
-                break
-
-            cv2.imshow(window_name, frame)
-
-            self.recorder.write(frame)
 
             if action == Action.HIGHLIGHT:
                 self.highlight_manager.add_highlight()
@@ -88,95 +61,83 @@ class GameSession:
                 self.shutdown()
                 break
 
+            time.sleep(0.05)
+
+    def _wait_for_first_segment(self, timeout=10):
+
+        first_segment = self.segments_dir / "segment_000.mp4"
+        started = time.time()
+
+        while not first_segment.exists():
+
+            if time.time() - started > timeout:
+                raise RuntimeError(
+                    "Timeout esperando o ffmpeg iniciar a gravação."
+                )
+
+            time.sleep(0.05)
 
     def start_game(self):
 
         self.session_manager = SessionManager()
 
-        self.output_path = (
-            self.session_manager.session_folder /
-            temp_video_name
+        self.segments_dir = (
+            self.session_manager.session_folder / segments_folder_name
         )
 
-        self.recorder = GameRecorder(
-            output_path=str(self.output_path),
-            width=frame_width,
-            height=frame_height,
-            fps=fps,
-            codec=video_codec,
-        )
-
-        self.highlight_manager = HighlightManager()
-
-        self.game_running = True
-
+        self.recorder = GameRecorder(segments_dir=str(self.segments_dir))
         self.recorder.start()
 
+        # dá um respiro pro ffmpeg inicializar o device
+        # antes de começar a contar o tempo dos highlights
+        self._wait_for_first_segment()
+
+        self.highlight_manager = HighlightManager()
+        self.game_running = True
+
         print("\nPartida iniciada!")
-        
+
     def export_highlights(self):
 
         print("\nExportando highlights...")
-
         success = True
 
         for highlight in self.highlight_manager.highlights:
-
             try:
                 print(f"Exportando highlight {highlight.id}...")
-                
                 self.video_editor.export(
-                    input_video=str(self.output_path),
+                    segments_dir=str(self.segments_dir),
                     output_dir=str(self.session_manager.session_folder),
                     highlight=highlight,
                 )
-
             except Exception as e:
-
                 success = False
-
-                print(
-                    f"Erro ao exportar highlight "
-                    f"{highlight.id}: {e}"
-                )
+                print(f"Erro ao exportar highlight {highlight.id}: {e}")
 
         return success
 
     def shutdown(self):
-
         self.input_controller.close()
-        self.camera.release()
-        cv2.destroyAllWindows()
-
         print("Pingcam encerrada.")
-    
+
     def end_game(self):
 
         self.recorder.stop()
 
         success = self.export_highlights()
-        
-        if success and self.output_path.exists():
-            self.output_path.unlink()
-            print("Vídeo temporário removido.")
+
+        if success and self.segments_dir.exists():
+            shutil.rmtree(self.segments_dir)
+            print("Segmentos temporários removidos.")
         elif not success:
-            print("Vídeo temporário mantido para recuperação.")
+            print("Segmentos mantidos para recuperação.")
 
         print("\nHighlights registrados:")
+        for i, h in enumerate(self.highlight_manager.highlights, start=1):
+            print(f"{i:02d}. {h.start:.2f}s → {h.end:.2f}s")
 
-        for i, highlight in enumerate(
-            self.highlight_manager.highlights,
-            start=1,
-        ):
-
-            print(
-                f"{i:02d}. "
-                f"{highlight.start:.2f}s → "
-                f"{highlight.end:.2f}s"
-            )
-        
         self.game_running = False
-            
+
         print("\n=====================================")
         print("Sessão finalizada!")
         print()

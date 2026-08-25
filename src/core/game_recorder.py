@@ -1,47 +1,20 @@
-import cv2
+from pathlib import Path
+from .ffmpeg_recorder import FFmpegRecorder
 
 
 class GameRecorder:
 
-    def __init__(
-        self,
-        output_path: str,
-        width: int,
-        height: int,
-        fps: int,
-        codec: str,
-    ):
-
-        self.output_path = output_path
-        self.width = width
-        self.height = height
-        self.fps = fps
-        self.codec = codec
-
-        self.writer = None
+    def __init__(self, segments_dir: str):
+        self.segments_dir = Path(segments_dir)
+        self.recorder = FFmpegRecorder(self.segments_dir)
         self.is_recording = False
 
     def start(self):
-
-        fourcc = cv2.VideoWriter_fourcc(*self.codec)
-
-        self.writer = cv2.VideoWriter(
-            self.output_path,
-            fourcc,
-            self.fps,
-            (self.width, self.height),
-        )
-
+        print("Iniciando gravação...")
+        self.recorder.start()
         self.is_recording = True
 
-    def write(self, frame):
-
-        if self.is_recording:
-            self.writer.write(frame)
-
     def stop(self):
-
-        if self.writer is not None:
-            self.writer.release()
-
-        self.is_recording = False
+        if self.is_recording:
+            self.recorder.stop()
+            self.is_recording = False
