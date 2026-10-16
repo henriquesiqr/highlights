@@ -1,26 +1,22 @@
 from pathlib import Path
 
-# Câmera / captura / fps
-camera_device_name = "DroidCam Video"
-capture_width = 1920
-capture_height = 1080
-capture_fps = 30
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-# Gravação
-segment_time = 5       # duração de cada segmento, em segundos
-buffer_seconds = 20    # janela de highlight
-video_quality = 20     # global_quality do h264_qsv (menor = melhor)
+# Vídeo nativo do iPhone (transferido manualmente após a partida)
+# Aceita qualquer extensão (game.mp4, game.mov, etc.) — ver export.py
+native_video_basename = "game"
 
-recordings_dir = "recordings"
-segments_folder_name = "segments"
+# Highlights
+buffer_seconds = 20
 
-ffmpeg_path = Path(
-    r"C:\Users\HENRI\Downloads"
-    r"\ffmpeg-9.0-essentials_build"
-    r"\ffmpeg-9.0-essentials_build"
-    r"\bin"
-    r"\ffmpeg.exe"
-)
+# ffmpeg (usado só na etapa de exportação/corte)
+ffmpeg_path = PROJECT_ROOT / "tools" / "ffmpeg" / "bin" / "ffmpeg.exe"
+
+if not ffmpeg_path.exists():
+    raise FileNotFoundError(
+        f"ffmpeg.exe não encontrado em {ffmpeg_path}. "
+        "Baixe o ffmpeg e coloque o executável nesse caminho (veja o README)."
+    )
 
 # Teclado
 key_start = "n"

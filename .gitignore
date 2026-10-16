@@ -29,3 +29,4 @@ recordings/**
 
 highlights/**
 !highlights/.gitkeep
+tools/ffmpeg/
