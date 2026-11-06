@@ -51,6 +51,7 @@ def main():
             video_path=str(video_path),
             output_dir=str(session_folder),
             highlight=highlight,
+            prefix=session_folder.name,
         )
 
     print("\nExportação concluída.")

@@ -12,9 +12,14 @@ class VideoEditor:
         video_path: str,
         output_dir: str,
         highlight: Highlight,
+        prefix: str = "",
     ):
 
-        output_path = Path(output_dir) / f"highlight_{highlight.id:03d}.mp4"
+        name = f"highlight_{highlight.id:03d}.mp4"
+
+        if prefix:
+            name = f"{prefix}_{name}"
+        output_path = Path(output_dir) / name
 
         start = max(0, highlight.start)
         duration = highlight.end - highlight.start
