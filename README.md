@@ -33,3 +33,9 @@ Comando para exportar todos os highlights de uma vez:
 for d in highlights/*/; do python src/export.py "$d"; done
 ```
 
+Comando para extrair todos os cortes das subpastas para a pasta mãe de uma vez:
+```
+shopt -s nocaseglob
+mv -n */*.mp4 .
+```
+
